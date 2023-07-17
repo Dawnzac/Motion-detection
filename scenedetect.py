@@ -1,18 +1,20 @@
 import cv2
 import datetime
 import ctypes
+import winsound
 
-current_time = datetime.datetime.now()
+duration = 1000
+freq = 440
 
-cap1 = cv2.VideoCapture(0)
+#cap1 = cv2.VideoCapture(0)
 
 mog = cv2.createBackgroundSubtractorMOG2()
 
 cap2 = cv2.VideoCapture(0)
-
+c_count = 0
 
 while True:
-    ret1, frame1 = cap1.read()
+    #ret1, frame1 = cap1.read()
     ret2, frame2 = cap2.read()
     gray = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
     
@@ -30,17 +32,24 @@ while True:
         
         x, y, w, h = cv2.boundingRect(contour)
         cv2.rectangle(frame2, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        current_time = datetime.datetime.now()
         print ("Detected Change at " , current_time )
-        ctypes.windll.user32.MessageBoxW(0, "Scene Change Detected", "Alert", 1)
+        c_count+= 1
+        print (c_count)
+        if c_count >= 2:
+            winsound.MessageBeep()
+            MB_SYSTEMMODAL = 0x00001000
+            ctypes.windll.user32.MessageBoxW(0, "Scene Change Detected", "Alert", 1)
+            break
     
     cv2.imshow('Display Test', frame2)
     #cv2.imshow('Display Test Reference', frame1)
     #final = cv2.hconcat([frame1, frame2])
     #cv2.imshow("Display Test", final)
-    if cv2.waitKey(1) == ord('q'):
+    if cv2.waitKey(1000) == ord('q'):
         break
     
         
-cap1.release()
+#cap1.release()
 cap2.release()
 cv2.destroyAllWindows()
